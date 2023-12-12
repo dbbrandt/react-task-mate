@@ -15,7 +15,8 @@
     "graphql-tag": "^2.12.6",
     "next": "14.0.3",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "serverless-mysql": "^1.5.5"
   },
   "devDependencies": {
     "@types/node": "^20",

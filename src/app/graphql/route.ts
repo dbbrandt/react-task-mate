@@ -3,7 +3,7 @@ import { ApolloServer } from '@apollo/server';
 import { gql } from 'graphql-tag';
 import {NextRequest} from "next/server";
 import {IResolvers} from "@graphql-tools/utils";
-
+import mysql from "serverless-mysql";
 
 const typeDefs = gql`
   enum TaskStatus {
@@ -49,44 +49,31 @@ type Task = {
 
 type CreateTaskInput = {
     title: string;
+    status?: TaskStatus;
 };
-
-const taskList : Task[] = [
-    {
-        id: 1,
-        title: 'First Task',
-        status: "active"
-    },
-    {
-        id: 2,
-        title: 'Second Task',
-        status: "completed"
-    }
-];
-
-let nextTaskId = taskList.length + 1;
 
 const resolvers: IResolvers<Task, MyContext> = {
     Query: {
-        tasks(parent, args: { status?: TaskStatus }, context): Task[] {
+        async tasks(parent, args: { status?: TaskStatus }, context) {
             // If status is provided, filter by status; otherwise, return all tasks
-            return args.status ? taskList.filter((t) => t.status === args.status) : taskList;
+            let query = 'select  * from tasks';
+            if (args.status) query += ` where status = '${args.status}'`;
+            const result : Task[] = await context.db!.query(query);
+            return result;
         },
-        task(task): Task | null {
-            return null;
+        async task(parent, args, context) {
+            console.log(`User: ${process.env.NEXT_PUBLIC_MYSQL_USER}`);
+            const result : Task[] = await context.db!.query(`Select * from tasks where id = ${args.id}`);
+            return result[0];
         },
     },
     Mutation: {
         createTask(parent, args: {input: CreateTaskInput}, context) {
             // Create a new task with a unique ID and the provided title
-            const newTask: Task = {
-                id: nextTaskId++,
+            const newTask: CreateTaskInput = {
                 title: args.input.title,
-                status: "active", // default status or based on some logic
+                status: args.input.status ? args.input.status : "active", // default status or based on some logic
             };
-
-            // Add the new task to the task list
-            taskList.push(newTask);
 
             // Return the new task
             return newTask;
@@ -100,9 +87,17 @@ const resolvers: IResolvers<Task, MyContext> = {
     },
 };
 
+const db = mysql({
+    config: {
+        host: process.env.NEXT_PUBLIC_MYSQL_HOST,
+        user: process.env.NEXT_PUBLIC_MYSQL_USER,
+        password: process.env.NEXT_PUBLIC_MYSQL_PASSWORD,
+        database: process.env.NEXT_PUBLIC_MYSQL_DATABASE,
+    }
+})
+
 interface MyContext {
-    // Context typing
-    token?: String;
+    db?: typeof db;
 }
 
 const server = new ApolloServer<MyContext>({
@@ -112,7 +107,7 @@ const server = new ApolloServer<MyContext>({
 
 // req has the type NextRequest
 const handler = startServerAndCreateNextHandler<NextRequest>(server, {
-    context: async req => ({ req }),
+    context: async req => ({ req, db }),
 });
 
 export { handler as GET, handler as POST };
