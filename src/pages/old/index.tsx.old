@@ -1,7 +1,7 @@
 import {useQuery} from "@apollo/client";
 import {gql} from "graphql-tag";
-import {initializeApollo} from "../../lib/apollo";
-import {Task} from "../../generated/graphql";
+import {initializeApollo} from "../../../lib/apollo";
+import {Task} from "../../../generated/graphql";
 
 const TasksQueryDocument = gql`
   query Tasks {
