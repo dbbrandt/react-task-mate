@@ -1,5 +1,5 @@
 import { ApolloProvider } from '@apollo/client';
-import { useApollo } from '../../lib/apollo';
+import { useApollo } from '../../../lib/apollo';
 
 type RootLayoutProps = {
     children: React.ReactNode;

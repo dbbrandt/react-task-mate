@@ -1,6 +1,6 @@
-import { initializeApollo } from "../../lib/apollo";
+import { initializeApollo } from "../../../lib/apollo";
 import {ApolloCache, gql, NormalizedCacheObject, useQuery} from "@apollo/client";
-import { Task } from "../../generated/graphql";
+import { Task } from "../../../generated/graphql";
 
 
 const TasksQueryDocument = gql`
@@ -36,9 +36,10 @@ interface HomeProps {
 }
 
 
-export default function Home({ initialApolloState }: HomeProps) {
-  const apolloClient = initializeApollo(initialApolloState);
-  const result = useQuery<TasksQuery>(TasksQueryDocument, { client: apolloClient });
+// export default function Home({ initialApolloState }: HomeProps) {
+export default function Home({ }) {
+  // const apolloClient = initializeApollo(initialApolloState);
+  // const result = useQuery<TasksQuery>(TasksQueryDocument, { client: apolloClient });
   // const tasks = result.data?.tasks;
 
   return (

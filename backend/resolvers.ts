@@ -29,10 +29,10 @@ const resolvers: Resolvers<MyContext> = {
         async createTask(parent, args, context) {
             // Create a new task with a unique ID and the provided title
             const query : string = 'insert into tasks (title, status) values(?,?)';
-            const queryArgs : string[] = [args.input.title, TaskStatus.Active]
+            const queryArgs : string[] = [args.input.title, TaskStatus.Active];
+            console.log(`CreateTask query: ${query} args: ${queryArgs}`);
             const result = await context.db.query<OkPacket>(query,  queryArgs);
             console.log(result);
-
             return {
                 id: result.insertId,
                 title: args.input.title,
