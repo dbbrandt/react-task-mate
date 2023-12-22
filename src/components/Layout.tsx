@@ -7,7 +7,7 @@ const Layout: React.FC<React.PropsWithChildren<LayoutProps>> = ({ children }) =>
     return (
         <div className="page">
             <Link href="/" className="logo">
-                <Image src="/logo.png" alt="logo" />
+                <Image src="/logo.png" alt="logo" width={150} height={150}/>
             </Link>
             {children}
         </div>

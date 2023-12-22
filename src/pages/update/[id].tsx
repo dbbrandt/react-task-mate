@@ -3,6 +3,7 @@ import React from "react";
 import {GetServerSideProps} from "next";
 import {initializeApollo} from "../../../lib/apollo";
 import {useRouter} from "next/router";
+import UpdateTaskForm from "@/components/UpdateTaskForm";
 
 const UpdateTask : React.FC = () => {
     const router = useRouter();
@@ -12,7 +13,10 @@ const UpdateTask : React.FC = () => {
     const {data, loading, error} = useTaskQuery({variables: {taskId}})
     const task = data?.task;
     return (
-        loading ? <p>Loading....</p> : error ? <p className="alert-error">An error occured.</p> : task ? <p>{task.title}</p> : <p>Task not found.</p>
+        loading ? <p>Loading....</p> :
+            error ? <p className="alert-error">An error occured.</p> :
+                task ? <UpdateTaskForm id={taskId} task={task} onSuccess={() => console.log("Updated")}/> :
+                    <p>Task not found.</p>
     )
 }
 
