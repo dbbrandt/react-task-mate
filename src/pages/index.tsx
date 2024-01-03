@@ -16,7 +16,7 @@ export default function Home() {
             ) : result.error ? (
                 <p>An error occurred.</p>
             ) : tasks && tasks.length > 0 ? (
-                <TaskList tasks={tasks} />
+                <TaskList tasks={tasks}/>
             ) : (
                 <p className="no-tasks-message">You&apos;ve got no tasks.</p>
             )}
