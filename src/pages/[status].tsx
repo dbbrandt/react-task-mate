@@ -1,19 +1,18 @@
 import Head from 'next/head';
-import { initializeApollo } from '../../lib/apollo'
+import Error from 'next/error';
+import {initializeApollo} from '../../lib/apollo'
 import {
-    useTasksQuery,
-    TasksQuery,
     TasksDocument,
+    TasksQuery,
     TasksQueryVariables,
+    TaskStatus,
+    useTasksQuery,
 } from '../../generated/graphql-frontend';
 import TaskList from '../components/TaskList';
 import CreateTaskForm from '../components/CreateTaskForm';
 import TaskFilter from '../components/TaskFilter';
-import { useRouter } from 'next/router';
-import { TaskStatus } from '../../generated/graphql-frontend';
-import Error from 'next/error';
-import { GetServerSideProps } from 'next';
-import { useRef, useEffect } from 'react';
+import {useRouter} from 'next/router';
+import {GetServerSideProps} from 'next';
 
 const isTaskStatus = (value: string): value is TaskStatus =>
     Object.values(TaskStatus).includes(value as TaskStatus);
@@ -21,45 +20,43 @@ const isTaskStatus = (value: string): value is TaskStatus =>
 
 export default function Home() {
     const router = useRouter();
+    const valid = (typeof router.query.status === 'string'
+        && isTaskStatus(router.query.status))
+        || router.query.status === undefined;
+
     const status =
-        typeof router.query.status === 'string' ? router.query.status : undefined;
-
-    const prevStatus = useRef(status);
-
-    useEffect(() => {
-        prevStatus.current = status;
-    }, [status]);
+        // need to type guard status as a valid TaskStatus or undefined for the useTaskQuery variable to pass type checking
+        typeof router.query.status === 'string' && isTaskStatus(router.query.status) ?
+            router.query.status : undefined;
 
     const result = useTasksQuery({
         variables: { status },
-        fetchPolicy:
-            prevStatus.current === status ? 'cache-first' : 'cache-and-network',
     });
     const tasks = result.data?.tasks;
 
-    if (status !== undefined && !isTaskStatus(status)) {
+    if (!valid) {
         return <Error statusCode={404} />;
     } else {
         return (
             <div>
                 <Head>
                     <title>Tasks</title>
-                    <link rel="icon" href="/favicon.ico" />
+                    <link rel="icon" href="/favicon.ico"/>
                 </Head>
-                <CreateTaskForm onSuccess={result.refetch} />
+                <CreateTaskForm onSuccess={result.refetch}/>
                 {result.loading && !tasks ? (
                     <p>Loading tasks...</p>
                 ) : result.error ? (
                     <p>An error occurred.</p>
                 ) : tasks && tasks.length > 0 ? (
-                    <TaskList tasks={tasks} onSuccess={result.refetch} />
+                    <TaskList tasks={tasks} onSuccess={result.refetch}/>
                 ) : (
                     <p className="no-tasks-message">You&quote;ve got no tasks.</p>
                 )}
-                <TaskFilter status={status} />
+                <TaskFilter status={status}/>
             </div>
         );
-        }
+    }
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
@@ -71,7 +68,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
     if (status === undefined || isTaskStatus(status)) {
         const apolloClient = initializeApollo();
 
-        await apolloClient.query<TasksQuery, TasksQueryVariables>({
+        await apolloClient.query<TasksQuery, TasksQueryVariables>({  // Need to add TaskQUeryVariables so the variables is defined below
             query: TasksDocument,
             variables: { status },
         });

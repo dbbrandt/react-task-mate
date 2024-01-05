@@ -242,7 +242,7 @@ export const TasksDocument = gql`
  * When your component renders, `useTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions? options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
  * const { data, loading, error } = useTasksQuery({
@@ -251,7 +251,7 @@ export const TasksDocument = gql`
  *   },
  * });
  */
-export function useTasksQuery(baseOptions?: { variables: { status: string | undefined }; fetchPolicy: string }) {
+export function useTasksQuery(baseOptions?: Apollo.QueryHookOptions<TasksQuery, TasksQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<TasksQuery, TasksQueryVariables>(TasksDocument, options);
       }
