@@ -98,7 +98,9 @@ export type TaskQueryVariables = Exact<{
 
 export type TaskQuery = { __typename?: 'Query', task?: { __typename?: 'Task', id: number, title: string, status: TaskStatus } | null };
 
-export type TasksQueryVariables = Exact<{ [key: string]: never; }>;
+export type TasksQueryVariables = Exact<{
+  status?: InputMaybe<TaskStatus>;
+}>;
 
 
 export type TasksQuery = { __typename?: 'Query', tasks: Array<{ __typename?: 'Task', id: number, title: string, status: TaskStatus }> };
@@ -224,8 +226,8 @@ export type TaskLazyQueryHookResult = ReturnType<typeof useTaskLazyQuery>;
 export type TaskSuspenseQueryHookResult = ReturnType<typeof useTaskSuspenseQuery>;
 export type TaskQueryResult = Apollo.QueryResult<TaskQuery, TaskQueryVariables>;
 export const TasksDocument = gql`
-    query Tasks {
-  tasks {
+    query Tasks($status: TaskStatus) {
+  tasks(status: $status) {
     id
     title
     status
@@ -240,15 +242,16 @@ export const TasksDocument = gql`
  * When your component renders, `useTasksQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
- * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ * @param baseOptions? options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
  * const { data, loading, error } = useTasksQuery({
  *   variables: {
+ *      status: // value for 'status'
  *   },
  * });
  */
-export function useTasksQuery(baseOptions?: Apollo.QueryHookOptions<TasksQuery, TasksQueryVariables>) {
+export function useTasksQuery(baseOptions?: { variables: { status: string | undefined }; fetchPolicy: string }) {
         const options = {...defaultOptions, ...baseOptions}
         return Apollo.useQuery<TasksQuery, TasksQueryVariables>(TasksDocument, options);
       }

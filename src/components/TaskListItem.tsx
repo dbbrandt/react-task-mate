@@ -1,28 +1,32 @@
 import React, {useEffect} from "react";
-import {Task, TasksQuery, useDeleteTaskMutation} from "../../generated/graphql-frontend";
+import {Task, useDeleteTaskMutation} from "../../generated/graphql-frontend";
 import Link from "next/link";
-import {ApolloCache, Reference} from "@apollo/client";
 
 interface TaskItemProps {
-    task: Task
+    task: Task,
+    onSuccess: () => void;
 }
 
-const TaskListItem: React.FC<TaskItemProps> = ({task}) => {
+const TaskListItem: React.FC<TaskItemProps> = ({task, onSuccess}) => {
     const [deleteTask, { loading, error}] = useDeleteTaskMutation({
-        update(cache: ApolloCache<TasksQuery>, result) {
-            // Read the current state of the query from the cache
-            const deleteTask = result.data?.deleteTask;
-            cache.modify({
-                fields: {
-                    tasks(taskRefs: ReadonlyArray<Reference>, {readField}) {
-                        return taskRefs.filter((taskRef) => {
-                            return readField('id', taskRef) !== deleteTask?.id;
-                        })
-
-                    }
-                }
-            })
-
+        // // Below is a way of handling delete or any update by updating the cache.
+        // update(cache: ApolloCache<TasksQuery>, result) {
+        //     // Read the current state of the query from the cache
+        //     const deleteTask = result.data?.deleteTask;
+        //     cache.modify({
+        //         fields: {
+        //             tasks(taskRefs: ReadonlyArray<Reference>, {readField}) {
+        //                 return taskRefs.filter((taskRef) => {
+        //                     return readField('id', taskRef) !== deleteTask?.id;
+        //                 })
+        //
+        //             }
+        //         }
+        //     })
+        //
+        // },
+        onCompleted: () => {
+            onSuccess();
         },
         variables: { deleteTaskId: task.id}}
     );
