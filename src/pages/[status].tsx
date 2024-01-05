@@ -31,6 +31,7 @@ export default function Home() {
 
     const result = useTasksQuery({
         variables: { status },
+        fetchPolicy: 'cache-and-network' // this get the query to run on every page fetch
     });
     const tasks = result.data?.tasks;
 
